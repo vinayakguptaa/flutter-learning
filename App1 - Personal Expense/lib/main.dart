@@ -5,7 +5,9 @@ import './widgets/txlist.dart';
 import './widgets/chart.dart';
 import './models/transaction.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -51,6 +53,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final List<Transaction> _transactions = [];
 
+  bool _showChart = false;
+
   List<Transaction> get _recentTrans {
     return _transactions.where((tx) {
       return tx.date.isAfter(DateTime.now().subtract(Duration(days: 7)));
@@ -78,6 +82,10 @@ class _HomePageState extends State<HomePage> {
 
   void _txModal(BuildContext ctx) {
     showModalBottomSheet<dynamic>(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+      ),
       isScrollControlled: true,
       context: ctx,
       builder: (_) {
@@ -90,22 +98,61 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Personal Expenses',
-        ),
-        actions: <Widget>[
-          IconButton(icon: Icon(Icons.add), onPressed: () => _txModal(context)),
-        ],
+    final mediaQuery = MediaQuery.of(context);
+    final _isLandscape = mediaQuery.orientation == Orientation.landscape;
+    final appBar = AppBar(
+      title: Text(
+        'Personal Expenses',
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            Chart(_recentTrans),
-            TxList(_transactions, _delTx),
-          ],
-        ),
+    );
+    final vH = mediaQuery.size.height -
+        appBar.preferredSize.height -
+        mediaQuery.padding.top;
+    return Scaffold(
+      appBar: appBar,
+      body: Column(
+        children: <Widget>[
+          if (_isLandscape)
+            Container(
+              height: vH * 0.2,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    'Show Chart',
+                    style: Theme.of(context).textTheme.headline6,
+                  ),
+                  Switch(
+                      value: _showChart,
+                      onChanged: (val) {
+                        setState(() {
+                          _showChart = val;
+                        });
+                      }),
+                ],
+              ),
+            ),
+          if (_isLandscape)
+            _showChart
+                ? Container(
+                    height: vH * 0.6,
+                    child: Chart(_recentTrans),
+                  )
+                : Container(
+                    height: vH * 0.8,
+                    child: TxList(_transactions, _delTx),
+                  ),
+          if (!_isLandscape)
+            Container(
+              height: vH * 0.27,
+              child: Chart(_recentTrans),
+            ),
+          if (!_isLandscape)
+            Container(
+              height: vH * 0.73,
+              child: TxList(_transactions, _delTx),
+            ),
+        ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton.extended(
