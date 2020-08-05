@@ -112,15 +112,19 @@ class _HomePageState extends State<HomePage> {
       appBar: appBar,
       body: Column(
         children: <Widget>[
-          if (_isLandscape)
+          if (_isLandscape) ...[
             Container(
               height: vH * 0.2,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text(
+                  const Text(
                     'Show Chart',
-                    style: Theme.of(context).textTheme.headline6,
+                    style: TextStyle(
+                      fontFamily: 'OpenSans',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
                   ),
                   Switch(
                       value: _showChart,
@@ -132,7 +136,6 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-          if (_isLandscape)
             _showChart
                 ? Container(
                     height: vH * 0.6,
@@ -141,23 +144,24 @@ class _HomePageState extends State<HomePage> {
                 : Container(
                     height: vH * 0.8,
                     child: TxList(_transactions, _delTx),
-                  ),
-          if (!_isLandscape)
+                  )
+          ],
+          if (!_isLandscape) ...[
             Container(
               height: vH * 0.27,
               child: Chart(_recentTrans),
             ),
-          if (!_isLandscape)
             Container(
               height: vH * 0.73,
               child: TxList(_transactions, _delTx),
-            ),
+            )
+          ],
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton.extended(
-        icon: Icon(Icons.add),
-        label: Text('New Transaction'),
+        icon: const Icon(Icons.add),
+        label: const Text('New Transaction'),
         onPressed: () => _txModal(context),
       ),
     );
